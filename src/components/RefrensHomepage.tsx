@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Menu, X } from 'lucide-react';
+import { ChevronDown, Menu, X, Rocket } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const RefrensHomepage = () => {
@@ -10,6 +10,8 @@ const RefrensHomepage = () => {
 	const [displayText, setDisplayText] = useState('');
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [textIndex, setTextIndex] = useState(0);
+	const [showComingSoonModal, setShowComingSoonModal] = useState(false);
+	const [comingSoonTitle, setComingSoonTitle] = useState('');
 	const productsDropdownRef = useRef<HTMLDivElement>(null);
 	const countryDropdownRef = useRef<HTMLDivElement>(null);
 	const pricingDropdownRef = useRef<HTMLDivElement>(null);
@@ -85,6 +87,10 @@ const RefrensHomepage = () => {
 		};
 	}, [showMobileMenu]);
 
+	const showComingSoon = (title: string) => {
+		setComingSoonTitle(title);
+		setShowComingSoonModal(true);
+	};
 
 	const scrollToBusinessSection = () => {
 		const businessSection = document.getElementById('business-section');
@@ -124,7 +130,7 @@ const RefrensHomepage = () => {
 				setShowMobileMenu(false);
 			}, 0);
 		} else {
-			alert(`${item} - Coming Soon!`);
+			showComingSoon(item);
 			setShowProductsDropdown(false);
 			setShowMobileMenu(false);
 		}
@@ -176,7 +182,7 @@ const RefrensHomepage = () => {
 															<li key={idx}>
 																<button
 																	onClick={() => {
-																		alert(`${item} - Coming Soon!`);
+																		showComingSoon(item);
 																		setShowProductsDropdown(false);
 																	}}
 																	className="text-left text-black-700 hover:text-red-600 transition-colors w-full text-md"
@@ -200,7 +206,7 @@ const RefrensHomepage = () => {
 																			setShowProductsDropdown(false);
 																			navigate(item.route);
 																		} else {
-																			alert(`${item.name} - Coming Soon!`);
+																			showComingSoon(item.name);
 																			setShowProductsDropdown(false);
 																		}
 																	}}
@@ -221,7 +227,7 @@ const RefrensHomepage = () => {
 															<li key={idx}>
 																<button
 																	onClick={() => {
-																		alert(`${item} - Coming Soon!`);
+																		showComingSoon(item);
 																		setShowProductsDropdown(false);
 																	}}
 																	className="text-left w-full text-black-700 hover:text-red-600 transition-colors text-md"
@@ -555,6 +561,95 @@ const RefrensHomepage = () => {
 					</button>
 				</div>
 			</div>
+
+			{/* Coming Soon Modal */}
+			{showComingSoonModal && (
+				<div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[200] p-4 animate-fadeIn">
+					<div className="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all animate-slideUp">
+						<div className="relative overflow-hidden">
+							{/* Gradient Header */}
+							<div className="bg-gradient-to-r from-purple-600 via-purple-500 to-pink-500 p-6 sm:p-8">
+								<div className="flex justify-between items-start">
+									<div className="flex-1">
+										<div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-4 animate-bounce">
+											<Rocket className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+										</div>
+										<h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+											Coming Soon!
+										</h3>
+										<p className="text-purple-100 text-sm sm:text-base">
+											We're working on something amazing
+										</p>
+									</div>
+									<button
+										onClick={() => setShowComingSoonModal(false)}
+										className="text-white/80 hover:text-white transition-colors"
+									>
+										<X className="w-6 h-6" />
+									</button>
+								</div>
+							</div>
+
+							{/* Content */}
+							<div className="p-6 sm:p-8">
+								<div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 sm:p-6 mb-6">
+									<p className="text-gray-700 text-center font-medium text-base sm:text-lg mb-2">
+										{comingSoonTitle}
+									</p>
+									<p className="text-gray-600 text-center text-sm">
+										is currently under development
+									</p>
+								</div>
+
+								<div className="space-y-3 mb-6">
+									<div className="flex items-center gap-3 text-gray-700">
+										<div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+										<p className="text-sm">We're crafting this feature with care</p>
+									</div>
+									<div className="flex items-center gap-3 text-gray-700">
+										<div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+										<p className="text-sm">It will be worth the wait</p>
+									</div>
+									<div className="flex items-center gap-3 text-gray-700">
+										<div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+										<p className="text-sm">Stay tuned for updates</p>
+									</div>
+								</div>
+
+								<button
+									onClick={() => setShowComingSoonModal(false)}
+									className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+								>
+									Got it, thanks!
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
+
+			<style>{`
+				@keyframes fadeIn {
+					from { opacity: 0; }
+					to { opacity: 1; }
+				}
+				@keyframes slideUp {
+					from {
+						opacity: 0;
+						transform: translateY(20px);
+					}
+					to {
+						opacity: 1;
+						transform: translateY(0);
+					}
+				}
+				.animate-fadeIn {
+					animation: fadeIn 0.2s ease-out;
+				}
+				.animate-slideUp {
+					animation: slideUp 0.3s ease-out;
+				}
+			`}</style>
 		</div>
 	);
 };
