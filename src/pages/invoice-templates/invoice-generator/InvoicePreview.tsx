@@ -92,22 +92,24 @@ const InvoicePreview = () => {
 
 			const pageWidth = 210; // A4 width in mm
 			const pageHeight = 297; // A4 height in mm
-			const imgWidth = pageWidth;
+			const margin = 10; // Margin in mm for page breaks
+			const contentWidth = pageWidth - (margin * 2);
+			const imgWidth = contentWidth;
 			const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
 			let heightLeft = imgHeight;
-			let position = 0;
+			let position = margin; // Start with top margin
 
-			// Add first page
-			pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-			heightLeft -= pageHeight;
+			// Add first page with margins
+			pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+			heightLeft -= (pageHeight - margin * 2); // Account for top and bottom margins
 
 			// Add additional pages if content is longer than one page
 			while (heightLeft > 0) {
-				position = heightLeft - imgHeight;
+				position = -(imgHeight - heightLeft) + margin; // Add top margin for new page
 				pdf.addPage();
-				pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-				heightLeft -= pageHeight;
+				pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+				heightLeft -= (pageHeight - margin * 2); // Account for margins on each page
 			}
 
 			// Add attachments as additional pages
@@ -243,20 +245,24 @@ const InvoicePreview = () => {
 
 			const pageWidth = 210;
 			const pageHeight = 297;
-			const imgWidth = pageWidth;
+			const margin = 10; // Margin in mm for page breaks
+			const contentWidth = pageWidth - (margin * 2);
+			const imgWidth = contentWidth;
 			const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
 			let heightLeft = imgHeight;
-			let position = 0;
+			let position = margin; // Start with top margin
 
-			pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-			heightLeft -= pageHeight;
+			// Add first page with margins
+			pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+			heightLeft -= (pageHeight - margin * 2); // Account for top and bottom margins
 
+			// Add additional pages if content is longer than one page
 			while (heightLeft > 0) {
-				position = heightLeft - imgHeight;
+				position = -(imgHeight - heightLeft) + margin; // Add top margin for new page
 				pdf.addPage();
-				pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-				heightLeft -= pageHeight;
+				pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+				heightLeft -= (pageHeight - margin * 2); // Account for margins on each page
 			}
 
 			// Add the invoice PDF to the ZIP
@@ -294,6 +300,32 @@ const InvoicePreview = () => {
 
 	return (
 		<div className="min-h-screen bg-gray-50 py-4 sm:py-8">
+			{/* Add print styles to prevent content cutting */}
+			<style>{`
+				@media print {
+					.page-break-avoid {
+						page-break-inside: avoid;
+						break-inside: avoid;
+					}
+					.page-break-before {
+						page-break-before: always;
+						break-before: always;
+					}
+					table {
+						page-break-inside: auto;
+					}
+					tr {
+						page-break-inside: avoid;
+						page-break-after: auto;
+					}
+					thead {
+						display: table-header-group;
+					}
+					tfoot {
+						display: table-footer-group;
+					}
+				}
+			`}</style>
 			<div className="max-w-6xl mx-auto px-2 sm:px-4">
 				{/* Action Buttons */}
 				<div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-6 mb-4 sm:mb-6 print:hidden">
@@ -390,7 +422,7 @@ const InvoicePreview = () => {
 					</div>
 
 					{/* Billing Details */}
-					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 print:grid-cols-2 print:gap-8 print:mb-8">
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 print:grid-cols-2 print:gap-8 print:mb-8 page-break-avoid">
 						{/* Billed By */}
 						<div>
 							<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">Billed By</h3>
@@ -477,7 +509,7 @@ const InvoicePreview = () => {
 
 					{/* Shipping Details - Shipped From and Shipped To */}
 					{invoiceData.addShippingDetails && (invoiceData.shippingDetails.shippedFrom.businessName || invoiceData.shippingDetails.shippedTo.clientBusinessName) && (
-						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 print:grid-cols-2 print:gap-8 print:mb-8">
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 print:grid-cols-2 print:gap-8 print:mb-8 page-break-avoid">
 							{/* Shipped From */}
 							{invoiceData.shippingDetails.shippedFrom.businessName && (
 								<div>
@@ -555,7 +587,7 @@ const InvoicePreview = () => {
 						invoiceData.transportDetails.challanNumber ||
 						invoiceData.transportDetails.vehicleType
 					) && (
-							<div className="mb-6 sm:mb-8 print:mb-8">
+							<div className="mb-6 sm:mb-8 print:mb-8 page-break-avoid">
 								<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">Transport Details</h3>
 								<div className="bg-purple-50 p-3 sm:p-4 lg:p-5 rounded-lg print:p-5">
 									<div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-1.5 sm:gap-y-2 print:grid-cols-2 print:gap-x-8 print:gap-y-2">
@@ -884,7 +916,7 @@ const InvoicePreview = () => {
 					</div>
 
 					{/* Total in Words and Totals Section */}
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 print:grid-cols-2 print:gap-8 print:mb-8">
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 print:grid-cols-2 print:gap-8 print:mb-8 page-break-avoid">
 						{/* Total in Words */}
 						<div>
 							<p className="font-bold text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base print:text-base print:mb-2">{invoiceData.totals.totalInWordsLabel}</p>
@@ -980,7 +1012,7 @@ const InvoicePreview = () => {
 
 					{/* Terms and Conditions */}
 					{invoiceData.terms.length > 0 && (
-						<div className="mb-6 sm:mb-8 print:mb-8">
+						<div className="mb-6 sm:mb-8 print:mb-8 page-break-avoid">
 							<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">Terms and Conditions</h3>
 							<ol className="list-decimal list-inside space-y-1.5 sm:space-y-2 print:space-y-2">
 								{invoiceData.terms.map((term) => (
