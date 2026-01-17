@@ -112,8 +112,7 @@ const RefrensHomepage = () => {
 			'Startups',
 			'Chartered Accountant',
 			'Export/Import Business',
-			'Professional Services',
-			'Freelancers/Self-Employed',
+			
 		],
 	};
 
