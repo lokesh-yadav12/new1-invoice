@@ -99,12 +99,17 @@ const RefrensHomepage = () => {
 		}
 	};
 
+	const handleOpenForm = () => {
+		// TODO: Open signup/registration form here
+		console.log('Opening form...');
+	};
+
 	const productsData = {
 		solutions: [
 			'Invoicing Software',
 			'Quotation Software',
 			'e-Invoicing Software',
-			
+
 		],
 		freeTools: [
 			{ name: 'GST Invoice Maker', route: '/invoice/gst-invoice' },
@@ -118,7 +123,7 @@ const RefrensHomepage = () => {
 			'Startups',
 			'Chartered Accountant',
 			'Export/Import Business',
-			
+
 		],
 	};
 
@@ -139,7 +144,7 @@ const RefrensHomepage = () => {
 	return (
 		<div className="min-h-screen bg bg-gradient-to-b pt-20 sm:pt-24 lg:pt-28 from-blue-100 via-white to-purple-200">
 			{/* Navigation Bar */}
-			<nav className="bg-white/60 backdrop-blur-md shadow-sm fixed left-1/2 -translate-x-1/2  top-2 sm:top-4 lg:top-6 w-[95%] sm:w-[90%] lg:w-[80%] mx-auto rounded-xl z-[90]">
+			<nav className="bg-white/60 backdrop-blur-md shadow-sm absolute left-1/2 -translate-x-1/2  top-2 sm:top-4 lg:top-6 w-[95%] sm:w-[90%] lg:w-[80%] mx-auto rounded-xl z-[90]">
 				<div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-2">
 					<div className="flex items-center justify-between">
 						{/* Logo */}
