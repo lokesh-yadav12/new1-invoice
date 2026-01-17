@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Plus, X } from 'lucide-react';
+import { useAppDispatch, useAppSelector } from '../../../store';
+import { updateInvoiceData } from '../../../store/invoiceSlice';
 
 interface CustomField {
   id: number;
@@ -9,17 +11,30 @@ interface CustomField {
 }
 
 export default function InvoiceDetailsForm() {
-  const [invoiceNo, setInvoiceNo] = useState('');
-  const [invoiceDate, setInvoiceDate] = useState('');
-  const [showDueDate, setShowDueDate] = useState(false);
-  const [dueDate, setDueDate] = useState('');
-  const [logo, setLogo] = useState('');
+  const dispatch = useAppDispatch();
+  const invoiceData = useAppSelector((state) => state.invoice);
+  const [invoiceNo, setInvoiceNo] = useState(invoiceData.invoiceNo);
+  const [invoiceDate, setInvoiceDate] = useState(invoiceData.invoiceDate);
+  const [showDueDate, setShowDueDate] = useState(!!invoiceData.dueDate);
+  const [dueDate, setDueDate] = useState(invoiceData.dueDate);
+  const [logo, setLogo] = useState(invoiceData.logo);
   const [showCustomFieldsModal, setShowCustomFieldsModal] = useState(false);
   const [showAddFieldModal, setShowAddFieldModal] = useState(false);
-  const [customFields, setCustomFields] = useState<CustomField[]>([]);
+  const [customFields, setCustomFields] = useState<CustomField[]>(invoiceData.customFields);
   const [newFieldLabel, setNewFieldLabel] = useState('');
   const [newFieldValue, setNewFieldValue] = useState('');
   const [setAsDefault, setSetAsDefault] = useState(false);
+
+  // Save to Redux whenever data changes
+  useEffect(() => {
+    dispatch(updateInvoiceData({
+      invoiceNo,
+      invoiceDate,
+      dueDate,
+      logo,
+      customFields,
+    }));
+  }, [invoiceNo, invoiceDate, dueDate, logo, customFields, dispatch]);
 
   const formatDisplayDate = (dateString: string) => {
     if (!dateString) return '';

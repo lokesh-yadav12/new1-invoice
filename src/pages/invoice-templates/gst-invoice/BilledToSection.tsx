@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { ChevronDown, Edit2, Plus, X, ChevronUp } from 'lucide-react';
+import { useAppDispatch } from '../../../store';
+import { updateInvoiceData } from '../../../store/invoiceSlice';
 
 interface Client {
 	id: number;
@@ -69,6 +71,7 @@ export default function BilledToSection({
 	clientForm,
 	setClientForm,
 }: BilledToSectionProps) {
+	const dispatch = useAppDispatch();
 	const [showClientDropdown, setShowClientDropdown] = useState(false);
 	const [showAddClientModal, setShowAddClientModal] = useState(false);
 	const [isEditingClient, setIsEditingClient] = useState(false);
@@ -97,7 +100,7 @@ export default function BilledToSection({
 							...client,
 							...clientForm,
 							name: clientForm.businessName,
-							company: clientForm.businessAlias || clientForm.businessName,
+							company: clientForm.businessAlias || '',
 						};
 					}
 					return client;
@@ -108,11 +111,35 @@ export default function BilledToSection({
 				const newClient = {
 					id: Date.now(),
 					name: clientForm.businessName,
-					company: clientForm.businessAlias || clientForm.businessName,
+					company: clientForm.businessAlias || '',
 					...clientForm,
 				};
 				setClients([...clients, newClient]);
+				setSelectedClient(clientForm.businessName);
 			}
+
+			// Save client to Redux for invoice preview
+			dispatch(updateInvoiceData({
+				selectedClient: clientForm.businessName,
+				clients: isEditingClient && editingClientId
+					? clients.map((client) => {
+						if (client.id === editingClientId) {
+							return {
+								...client,
+								...clientForm,
+								name: clientForm.businessName,
+								company: clientForm.businessAlias || '',
+							};
+						}
+						return client;
+					})
+					: [...clients, {
+						id: Date.now(),
+						name: clientForm.businessName,
+						company: clientForm.businessAlias || '',
+						...clientForm,
+					}],
+			}));
 
 			handleCloseClientModal();
 		}
@@ -189,8 +216,8 @@ export default function BilledToSection({
 				<div className="border-b-2 border-dotted border-gray-300 w-20"></div>
 			</div>
 
-			{/* Client Dropdown */}
-			<div className="relative text-sm">
+			{/* Client Dropdown - COMMENTED OUT */}
+			{/* <div className="relative text-sm">
 				<button
 					onClick={() => setShowClientDropdown(!showClientDropdown)}
 					className="w-full flex items-center gap-3 rounded-lg bg-white p-2 border border-gray-300 hover:border-gray-400 transition-colors"
@@ -232,7 +259,7 @@ export default function BilledToSection({
 						))}
 					</div>
 				)}
-			</div>
+			</div> */}
 
 			{/* Add New Client Button */}
 			<button
@@ -377,11 +404,11 @@ export default function BilledToSection({
 										<div className="grid grid-cols-2 gap-4">
 											<div>
 												<label className="block text-gray-900 font-medium mb-2">
-													Business Name<span className="text-red-500">*</span>
+													Client Name<span className="text-red-500">*</span>
 												</label>
 												<input
 													type="text"
-													placeholder="Business Name (Required)"
+													placeholder="Client Name (Required)"
 													value={clientForm.businessName}
 													onChange={(e) =>
 														setClientForm({ ...clientForm, businessName: e.target.value })
@@ -506,10 +533,10 @@ export default function BilledToSection({
 											</div>
 										</div>
 
-										<button className="flex items-center gap-2 text-purple-600 hover:text-purple-700 transition-colors">
+										{/* <button className="flex items-center gap-2 text-purple-600 hover:text-purple-700 transition-colors">
 											<span className="font-medium">Check GST Type</span>
 											<span>🎓</span>
-										</button>
+										</button> */}
 
 										{/* Client Type */}
 										<div>

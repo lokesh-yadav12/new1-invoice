@@ -66,7 +66,7 @@ const InvoicePreview = () => {
 			invoiceRef.current.style.transform = 'scale(1)';
 
 			// Wait for layout to settle
-			await new Promise(resolve => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// Capture the invoice content
 			const canvas = await html2canvas(invoiceRef.current, {
@@ -93,7 +93,7 @@ const InvoicePreview = () => {
 			const pageWidth = 210; // A4 width in mm
 			const pageHeight = 297; // A4 height in mm
 			const margin = 10; // Margin in mm for page breaks
-			const contentWidth = pageWidth - (margin * 2);
+			const contentWidth = pageWidth - margin * 2;
 			const imgWidth = contentWidth;
 			const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
@@ -102,14 +102,14 @@ const InvoicePreview = () => {
 
 			// Add first page with margins
 			pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
-			heightLeft -= (pageHeight - margin * 2); // Account for top and bottom margins
+			heightLeft -= pageHeight - margin * 2; // Account for top and bottom margins
 
 			// Add additional pages if content is longer than one page
 			while (heightLeft > 0) {
 				position = -(imgHeight - heightLeft) + margin; // Add top margin for new page
 				pdf.addPage();
 				pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
-				heightLeft -= (pageHeight - margin * 2); // Account for margins on each page
+				heightLeft -= pageHeight - margin * 2; // Account for margins on each page
 			}
 
 			// Add attachments as additional pages
@@ -170,7 +170,14 @@ const InvoicePreview = () => {
 									imgH *= ratio;
 								}
 
-								pdf.addImage(attachment.url, (fileExtension || 'PNG').toUpperCase(), 20, 35, imgW, imgH);
+								pdf.addImage(
+									attachment.url,
+									(fileExtension || 'PNG').toUpperCase(),
+									20,
+									35,
+									imgW,
+									imgH,
+								);
 							} catch (error) {
 								console.error('Error adding image attachment:', error);
 							}
@@ -219,7 +226,7 @@ const InvoicePreview = () => {
 			invoiceRef.current.style.transform = 'scale(1)';
 
 			// Wait for layout to settle
-			await new Promise(resolve => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// Generate the invoice PDF
 			const canvas = await html2canvas(invoiceRef.current, {
@@ -246,7 +253,7 @@ const InvoicePreview = () => {
 			const pageWidth = 210;
 			const pageHeight = 297;
 			const margin = 10; // Margin in mm for page breaks
-			const contentWidth = pageWidth - (margin * 2);
+			const contentWidth = pageWidth - margin * 2;
 			const imgWidth = contentWidth;
 			const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
@@ -255,14 +262,14 @@ const InvoicePreview = () => {
 
 			// Add first page with margins
 			pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
-			heightLeft -= (pageHeight - margin * 2); // Account for top and bottom margins
+			heightLeft -= pageHeight - margin * 2; // Account for top and bottom margins
 
 			// Add additional pages if content is longer than one page
 			while (heightLeft > 0) {
 				position = -(imgHeight - heightLeft) + margin; // Add top margin for new page
 				pdf.addPage();
 				pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
-				heightLeft -= (pageHeight - margin * 2); // Account for margins on each page
+				heightLeft -= pageHeight - margin * 2; // Account for margins on each page
 			}
 
 			// Add the invoice PDF to the ZIP
@@ -372,11 +379,21 @@ const InvoicePreview = () => {
 					{/* Header Section */}
 					<div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6 sm:mb-8 print:flex-row print:mb-8">
 						<div className="flex-1">
-							<h1 className="text-xl sm:text-3xl lg:text-4xl font-bold text-purple-600 mb-2 sm:mb-3 print:text-4xl print:mb-3">{invoiceData.title}</h1>
-							{invoiceData.subtitle && <p className="text-base sm:text-lg text-gray-600 print:text-lg">{invoiceData.subtitle}</p>}
+							<h1 className="text-xl sm:text-3xl lg:text-4xl font-bold text-purple-600 mb-2 sm:mb-3 print:text-4xl print:mb-3">
+								{invoiceData.title}
+							</h1>
+							{invoiceData.subtitle && (
+								<p className="text-base sm:text-lg text-gray-600 print:text-lg">
+									{invoiceData.subtitle}
+								</p>
+							)}
 						</div>
 						{invoiceData.logo && (
-							<img src={invoiceData.logo} alt="Business Logo" className="max-h-20 sm:max-h-28 lg:max-h-32 rounded-lg print:max-h-32" />
+							<img
+								src={invoiceData.logo}
+								alt="Business Logo"
+								className="max-h-20 sm:max-h-28 lg:max-h-32 rounded-lg print:max-h-32"
+							/>
 						)}
 					</div>
 
@@ -425,7 +442,9 @@ const InvoicePreview = () => {
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 print:grid-cols-2 print:gap-8 print:mb-8 page-break-avoid">
 						{/* Billed By */}
 						<div>
-							<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">Billed By</h3>
+							<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">
+								Billed By
+							</h3>
 							<div className="bg-purple-50 p-3 sm:p-4 lg:p-5 rounded-lg print:p-5">
 								<p className="font-bold text-gray-900 text-base sm:text-lg mb-1.5 sm:mb-2 print:text-lg print:mb-2">
 									{invoiceData.businessDetails.vendorName}
@@ -464,12 +483,18 @@ const InvoicePreview = () => {
 
 						{/* Billed To */}
 						<div>
-							<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">Billed To</h3>
+							<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">
+								Billed To
+							</h3>
 							{selectedClientData ? (
 								<div className="bg-purple-50 p-3 sm:p-4 lg:p-5 rounded-lg print:p-5">
-									<p className="font-bold text-gray-900 text-base sm:text-lg mb-1.5 sm:mb-2 print:text-lg print:mb-2">{selectedClientData.name}</p>
+									<p className="font-bold text-gray-900 text-base sm:text-lg mb-1.5 sm:mb-2 print:text-lg print:mb-2">
+										{selectedClientData.name}
+									</p>
 									{selectedClientData.company && (
-										<p className="text-gray-700 text-xs sm:text-sm mb-0.5 sm:mb-1 print:text-sm print:mb-1">{selectedClientData.company},</p>
+										<p className="text-gray-700 text-xs sm:text-sm mb-0.5 sm:mb-1 print:text-sm print:mb-1">
+											{selectedClientData.company},
+										</p>
 									)}
 									{selectedClientData.streetAddress && (
 										<p className="text-gray-700 text-xs sm:text-sm mb-0.5 sm:mb-1 print:text-sm print:mb-1">
@@ -508,106 +533,125 @@ const InvoicePreview = () => {
 					</div>
 
 					{/* Shipping Details - Shipped From and Shipped To */}
-					{invoiceData.addShippingDetails && (invoiceData.shippingDetails.shippedFrom.businessName || invoiceData.shippingDetails.shippedTo.clientBusinessName) && (
-						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 print:grid-cols-2 print:gap-8 print:mb-8 page-break-avoid">
-							{/* Shipped From */}
-							{invoiceData.shippingDetails.shippedFrom.businessName && (
-								<div>
-									<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">Shipped From</h3>
-									<div className="bg-purple-50 p-3 sm:p-4 lg:p-5 rounded-lg print:p-5">
-										<p className="font-bold text-gray-900 text-base sm:text-lg mb-1.5 sm:mb-2 print:text-lg print:mb-2">
-											{invoiceData.shippingDetails.shippedFrom.businessName}
-										</p>
-										{invoiceData.shippingDetails.shippedFrom.address && (
-											<p className="text-gray-700 text-xs sm:text-sm mb-0.5 sm:mb-1 print:text-sm print:mb-1">
-												{invoiceData.shippingDetails.shippedFrom.address},
+					{invoiceData.addShippingDetails &&
+						(invoiceData.shippingDetails.shippedFrom.businessName ||
+							invoiceData.shippingDetails.shippedTo.clientBusinessName) && (
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 print:grid-cols-2 print:gap-8 print:mb-8 page-break-avoid">
+								{/* Shipped From */}
+								{invoiceData.shippingDetails.shippedFrom.businessName && (
+									<div>
+										<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">
+											Shipped From
+										</h3>
+										<div className="bg-purple-50 p-3 sm:p-4 lg:p-5 rounded-lg print:p-5">
+											<p className="font-bold text-gray-900 text-base sm:text-lg mb-1.5 sm:mb-2 print:text-lg print:mb-2">
+												{invoiceData.shippingDetails.shippedFrom.businessName}
 											</p>
-										)}
-										<p className="text-gray-700 text-xs sm:text-sm mb-0.5 sm:mb-1 print:text-sm print:mb-1">
-											{[
-												invoiceData.shippingDetails.shippedFrom.city,
-												invoiceData.shippingDetails.shippedFrom.state,
-											]
-												.filter(Boolean)
-												.join(', ')}
-											{invoiceData.shippingDetails.shippedFrom.city ||
+											{invoiceData.shippingDetails.shippedFrom.address && (
+												<p className="text-gray-700 text-xs sm:text-sm mb-0.5 sm:mb-1 print:text-sm print:mb-1">
+													{invoiceData.shippingDetails.shippedFrom.address},
+												</p>
+											)}
+											<p className="text-gray-700 text-xs sm:text-sm mb-0.5 sm:mb-1 print:text-sm print:mb-1">
+												{[
+													invoiceData.shippingDetails.shippedFrom.city,
+													invoiceData.shippingDetails.shippedFrom.state,
+												]
+													.filter(Boolean)
+													.join(', ')}
+												{invoiceData.shippingDetails.shippedFrom.city ||
 												invoiceData.shippingDetails.shippedFrom.state
-												? ','
-												: ''}
-										</p>
-										<p className="text-gray-700 text-xs sm:text-sm print:text-sm">
-											{invoiceData.shippingDetails.shippedFrom.country}
-											{invoiceData.shippingDetails.shippedFrom.postalCode &&
-												` - ${invoiceData.shippingDetails.shippedFrom.postalCode}`}
-										</p>
-									</div>
-								</div>
-							)}
-
-							{/* Shipped To */}
-							{invoiceData.shippingDetails.shippedTo.clientBusinessName && (
-								<div>
-									<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">Shipped To</h3>
-									<div className="bg-purple-50 p-3 sm:p-4 lg:p-5 rounded-lg print:p-5">
-										<p className="font-bold text-gray-900 text-base sm:text-lg mb-1.5 sm:mb-2 print:text-lg print:mb-2">
-											{invoiceData.shippingDetails.shippedTo.clientBusinessName}
-										</p>
-										{invoiceData.shippingDetails.shippedTo.address && (
-											<p className="text-gray-700 text-xs sm:text-sm mb-0.5 sm:mb-1 print:text-sm print:mb-1">
-												{invoiceData.shippingDetails.shippedTo.address},
+													? ','
+													: ''}
 											</p>
-										)}
-										<p className="text-gray-700 text-xs sm:text-sm mb-0.5 sm:mb-1 print:text-sm print:mb-1">
-											{[
-												invoiceData.shippingDetails.shippedTo.city,
-												invoiceData.shippingDetails.shippedTo.state,
-											]
-												.filter(Boolean)
-												.join(', ')}
-											{invoiceData.shippingDetails.shippedTo.city ||
-												invoiceData.shippingDetails.shippedTo.state
-												? ','
-												: ''}
-										</p>
-										<p className="text-gray-700 text-xs sm:text-sm print:text-sm">
-											{invoiceData.shippingDetails.shippedTo.country}
-											{invoiceData.shippingDetails.shippedTo.postalCode &&
-												` - ${invoiceData.shippingDetails.shippedTo.postalCode}`}
-										</p>
+											<p className="text-gray-700 text-xs sm:text-sm print:text-sm">
+												{invoiceData.shippingDetails.shippedFrom.country}
+												{invoiceData.shippingDetails.shippedFrom.postalCode &&
+													` - ${invoiceData.shippingDetails.shippedFrom.postalCode}`}
+											</p>
+										</div>
 									</div>
-								</div>
-							)}
-						</div>
-					)}
+								)}
+
+								{/* Shipped To */}
+								{invoiceData.shippingDetails.shippedTo.clientBusinessName && (
+									<div>
+										<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">
+											Shipped To
+										</h3>
+										<div className="bg-purple-50 p-3 sm:p-4 lg:p-5 rounded-lg print:p-5">
+											<p className="font-bold text-gray-900 text-base sm:text-lg mb-1.5 sm:mb-2 print:text-lg print:mb-2">
+												{invoiceData.shippingDetails.shippedTo.clientBusinessName}
+											</p>
+											{invoiceData.shippingDetails.shippedTo.address && (
+												<p className="text-gray-700 text-xs sm:text-sm mb-0.5 sm:mb-1 print:text-sm print:mb-1">
+													{invoiceData.shippingDetails.shippedTo.address},
+												</p>
+											)}
+											<p className="text-gray-700 text-xs sm:text-sm mb-0.5 sm:mb-1 print:text-sm print:mb-1">
+												{[
+													invoiceData.shippingDetails.shippedTo.city,
+													invoiceData.shippingDetails.shippedTo.state,
+												]
+													.filter(Boolean)
+													.join(', ')}
+												{invoiceData.shippingDetails.shippedTo.city ||
+												invoiceData.shippingDetails.shippedTo.state
+													? ','
+													: ''}
+											</p>
+											<p className="text-gray-700 text-xs sm:text-sm print:text-sm">
+												{invoiceData.shippingDetails.shippedTo.country}
+												{invoiceData.shippingDetails.shippedTo.postalCode &&
+													` - ${invoiceData.shippingDetails.shippedTo.postalCode}`}
+											</p>
+										</div>
+									</div>
+								)}
+							</div>
+						)}
 
 					{/* Transport Details */}
-					{invoiceData.addShippingDetails && (
-						invoiceData.transportDetails.transportMode ||
-						invoiceData.transportDetails.distance ||
-						invoiceData.transportDetails.challanNumber ||
-						invoiceData.transportDetails.vehicleType
-					) && (
+					{invoiceData.addShippingDetails &&
+						(invoiceData.transportDetails.transportMode ||
+							invoiceData.transportDetails.distance ||
+							invoiceData.transportDetails.challanNumber ||
+							invoiceData.transportDetails.vehicleType) && (
 							<div className="mb-6 sm:mb-8 print:mb-8 page-break-avoid">
-								<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">Transport Details</h3>
+								<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">
+									Transport Details
+								</h3>
 								<div className="bg-purple-50 p-3 sm:p-4 lg:p-5 rounded-lg print:p-5">
 									<div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-1.5 sm:gap-y-2 print:grid-cols-2 print:gap-x-8 print:gap-y-2">
 										{invoiceData.transportDetails.transportMode && (
 											<div className="flex text-xs sm:text-sm print:text-sm">
-												<span className="font-semibold text-gray-700 w-32 sm:w-40 print:w-40">Transport Mode:</span>
-												<span className="text-gray-900 capitalize">{invoiceData.transportDetails.transportMode}</span>
+												<span className="font-semibold text-gray-700 w-32 sm:w-40 print:w-40">
+													Transport Mode:
+												</span>
+												<span className="text-gray-900 capitalize">
+													{invoiceData.transportDetails.transportMode}
+												</span>
 											</div>
 										)}
 										{invoiceData.transportDetails.distance && (
 											<div className="flex text-xs sm:text-sm print:text-sm">
-												<span className="font-semibold text-gray-700 w-32 sm:w-40 print:w-40">Distance:</span>
-												<span className="text-gray-900">{invoiceData.transportDetails.distance} km</span>
+												<span className="font-semibold text-gray-700 w-32 sm:w-40 print:w-40">
+													Distance:
+												</span>
+												<span className="text-gray-900">
+													{invoiceData.transportDetails.distance} km
+												</span>
 											</div>
 										)}
 										{invoiceData.transportDetails.challanDate && (
 											<div className="flex text-xs sm:text-sm print:text-sm">
-												<span className="font-semibold text-gray-700 w-32 sm:w-40 print:w-40">Challan Date:</span>
+												<span className="font-semibold text-gray-700 w-32 sm:w-40 print:w-40">
+													Challan Date:
+												</span>
 												<span className="text-gray-900">
-													{new Date(invoiceData.transportDetails.challanDate).toLocaleDateString('en-US', {
+													{new Date(
+														invoiceData.transportDetails.challanDate,
+													).toLocaleDateString('en-US', {
 														month: 'short',
 														day: '2-digit',
 														year: 'numeric',
@@ -617,20 +661,32 @@ const InvoicePreview = () => {
 										)}
 										{invoiceData.transportDetails.challanNumber && (
 											<div className="flex text-xs sm:text-sm print:text-sm">
-												<span className="font-semibold text-gray-700 w-32 sm:w-40 print:w-40">Challan Number:</span>
-												<span className="text-gray-900">{invoiceData.transportDetails.challanNumber}</span>
+												<span className="font-semibold text-gray-700 w-32 sm:w-40 print:w-40">
+													Challan Number:
+												</span>
+												<span className="text-gray-900">
+													{invoiceData.transportDetails.challanNumber}
+												</span>
 											</div>
 										)}
 										{invoiceData.transportDetails.vehicleType && (
 											<div className="flex text-xs sm:text-sm print:text-sm">
-												<span className="font-semibold text-gray-700 w-32 sm:w-40 print:w-40">Vehicle Type:</span>
-												<span className="text-gray-900 capitalize">{invoiceData.transportDetails.vehicleType}</span>
+												<span className="font-semibold text-gray-700 w-32 sm:w-40 print:w-40">
+													Vehicle Type:
+												</span>
+												<span className="text-gray-900 capitalize">
+													{invoiceData.transportDetails.vehicleType}
+												</span>
 											</div>
 										)}
 										{invoiceData.transportDetails.vehicleNumber && (
 											<div className="flex text-xs sm:text-sm print:text-sm">
-												<span className="font-semibold text-gray-700 w-32 sm:w-40 print:w-40">Vehicle Number:</span>
-												<span className="text-gray-900">{invoiceData.transportDetails.vehicleNumber}</span>
+												<span className="font-semibold text-gray-700 w-32 sm:w-40 print:w-40">
+													Vehicle Number:
+												</span>
+												<span className="text-gray-900">
+													{invoiceData.transportDetails.vehicleNumber}
+												</span>
 											</div>
 										)}
 									</div>
@@ -668,11 +724,15 @@ const InvoicePreview = () => {
 										cellValue = item.name || 'Unnamed Item';
 									} else if (columnNameLower === 'hsn/sac' || columnNameLower === 'hsn') {
 										cellValue = item.hsn;
-									} else if (columnNameLower.includes('rate') && (
-										columnNameLower.includes('gst') || columnNameLower.includes('vat') ||
-										columnNameLower.includes('ppn') || columnNameLower.includes('sst') ||
-										columnNameLower.includes('hst') || columnNameLower.includes('tax')
-									)) {
+									} else if (
+										columnNameLower.includes('rate') &&
+										(columnNameLower.includes('gst') ||
+											columnNameLower.includes('vat') ||
+											columnNameLower.includes('ppn') ||
+											columnNameLower.includes('sst') ||
+											columnNameLower.includes('hst') ||
+											columnNameLower.includes('tax'))
+									) {
 										cellValue = `${item.gstRate}%`;
 									} else if (columnNameLower === 'quantity') {
 										cellValue = String(item.quantity);
@@ -685,11 +745,18 @@ const InvoicePreview = () => {
 									} else if (columnNameLower === 'sgst') {
 										cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.sgst) || '0').toFixed(2)}`;
 									} else if (columnNameLower === 'igst') {
-										const igst = parseFloat(String(item.cgst) || '0') + parseFloat(String(item.sgst) || '0');
+										const igst =
+											parseFloat(String(item.cgst) || '0') + parseFloat(String(item.sgst) || '0');
 										cellValue = `${invoiceData.currency.symbol}${igst.toFixed(2)}`;
-									} else if (columnNameLower === 'vat' || columnNameLower === 'ppn' ||
-										columnNameLower === 'sst' || columnNameLower === 'hst' || columnNameLower === 'tax') {
-										const totalTax = parseFloat(String(item.cgst) || '0') + parseFloat(String(item.sgst) || '0');
+									} else if (
+										columnNameLower === 'vat' ||
+										columnNameLower === 'ppn' ||
+										columnNameLower === 'sst' ||
+										columnNameLower === 'hst' ||
+										columnNameLower === 'tax'
+									) {
+										const totalTax =
+											parseFloat(String(item.cgst) || '0') + parseFloat(String(item.sgst) || '0');
 										cellValue = `${invoiceData.currency.symbol}${totalTax.toFixed(2)}`;
 									} else if (columnNameLower === 'total') {
 										cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.total) || '0').toFixed(2)}`;
@@ -710,8 +777,13 @@ const InvoicePreview = () => {
 								};
 
 								return (
-									<div key={item.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-										<div className="font-semibold text-purple-600 mb-3 text-sm">Item #{index + 1}</div>
+									<div
+										key={item.id}
+										className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+									>
+										<div className="font-semibold text-purple-600 mb-3 text-sm">
+											Item #{index + 1}
+										</div>
 
 										{/* Item Details */}
 										<div className="space-y-2">
@@ -723,9 +795,16 @@ const InvoicePreview = () => {
 													const isTotalColumn = columnNameLower === 'total';
 
 													return (
-														<div key={column.id} className="flex justify-between items-center py-1 border-b border-gray-100 last:border-0">
-															<span className="text-xs text-gray-600 font-medium">{column.name}:</span>
-															<span className={`text-xs ${isTotalColumn ? 'font-bold text-gray-900' : 'text-gray-800'}`}>
+														<div
+															key={column.id}
+															className="flex justify-between items-center py-1 border-b border-gray-100 last:border-0"
+														>
+															<span className="text-xs text-gray-600 font-medium">
+																{column.name}:
+															</span>
+															<span
+																className={`text-xs ${isTotalColumn ? 'font-bold text-gray-900' : 'text-gray-800'}`}
+															>
 																{value}
 															</span>
 														</div>
@@ -785,8 +864,13 @@ const InvoicePreview = () => {
 													return (
 														<th
 															key={column.id}
-															className={`py-2.5 sm:py-3 lg:py-4 px-2 sm:px-3 lg:px-4 font-semibold text-xs sm:text-sm print:py-4 print:px-4 print:text-sm ${isFirstColumn ? 'text-left' : isNumericColumn ? 'text-right' : 'text-center'
-																}`}
+															className={`py-2.5 sm:py-3 lg:py-4 px-2 sm:px-3 lg:px-4 font-semibold text-xs sm:text-sm print:py-4 print:px-4 print:text-sm ${
+																isFirstColumn
+																	? 'text-left'
+																	: isNumericColumn
+																		? 'text-right'
+																		: 'text-center'
+															}`}
 														>
 															{column.name}
 														</th>
@@ -804,19 +888,34 @@ const InvoicePreview = () => {
 														.map((column) => {
 															const columnNameLower = column.name.toLowerCase();
 															const isFirstColumn = columnNameLower === 'item';
-															const isNumericColumn = ['gst rate', 'quantity', 'rate', 'amount', 'cgst', 'sgst', 'total'].includes(columnNameLower);
+															const isNumericColumn = [
+																'gst rate',
+																'quantity',
+																'rate',
+																'amount',
+																'cgst',
+																'sgst',
+																'total',
+															].includes(columnNameLower);
 
 															// Get cell value
 															let cellValue = '';
 															if (columnNameLower === 'item') {
 																cellValue = item.name || 'Unnamed Item';
-															} else if (columnNameLower === 'hsn/sac' || columnNameLower === 'hsn') {
+															} else if (
+																columnNameLower === 'hsn/sac' ||
+																columnNameLower === 'hsn'
+															) {
 																cellValue = item.hsn;
-															} else if (columnNameLower.includes('rate') && (
-																columnNameLower.includes('gst') || columnNameLower.includes('vat') ||
-																columnNameLower.includes('ppn') || columnNameLower.includes('sst') ||
-																columnNameLower.includes('hst') || columnNameLower.includes('tax')
-															)) {
+															} else if (
+																columnNameLower.includes('rate') &&
+																(columnNameLower.includes('gst') ||
+																	columnNameLower.includes('vat') ||
+																	columnNameLower.includes('ppn') ||
+																	columnNameLower.includes('sst') ||
+																	columnNameLower.includes('hst') ||
+																	columnNameLower.includes('tax'))
+															) {
 																cellValue = `${item.gstRate}%`;
 															} else if (columnNameLower === 'quantity') {
 																cellValue = String(item.quantity);
@@ -829,18 +928,31 @@ const InvoicePreview = () => {
 															} else if (columnNameLower === 'sgst') {
 																cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.sgst) || '0').toFixed(2)}`;
 															} else if (columnNameLower === 'igst') {
-																const igst = parseFloat(String(item.cgst) || '0') + parseFloat(String(item.sgst) || '0');
+																const igst =
+																	parseFloat(String(item.cgst) || '0') +
+																	parseFloat(String(item.sgst) || '0');
 																cellValue = `${invoiceData.currency.symbol}${igst.toFixed(2)}`;
-															} else if (columnNameLower === 'vat' || columnNameLower === 'ppn' ||
-																columnNameLower === 'sst' || columnNameLower === 'hst' || columnNameLower === 'tax') {
-																const totalTax = parseFloat(String(item.cgst) || '0') + parseFloat(String(item.sgst) || '0');
+															} else if (
+																columnNameLower === 'vat' ||
+																columnNameLower === 'ppn' ||
+																columnNameLower === 'sst' ||
+																columnNameLower === 'hst' ||
+																columnNameLower === 'tax'
+															) {
+																const totalTax =
+																	parseFloat(String(item.cgst) || '0') +
+																	parseFloat(String(item.sgst) || '0');
 																cellValue = `${invoiceData.currency.symbol}${totalTax.toFixed(2)}`;
 															} else if (columnNameLower === 'total') {
 																cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.total) || '0').toFixed(2)}`;
 															} else {
 																// Custom column
 																const customValue = item.customFields?.[column.name];
-																if (customValue !== undefined && customValue !== null && customValue !== '') {
+																if (
+																	customValue !== undefined &&
+																	customValue !== null &&
+																	customValue !== ''
+																) {
 																	if (column.type === 'CURRENCY') {
 																		cellValue = `${invoiceData.currency.symbol}${parseFloat(String(customValue) || '0').toFixed(2)}`;
 																	} else {
@@ -854,17 +966,23 @@ const InvoicePreview = () => {
 															return (
 																<td
 																	key={column.id}
-																	className={`py-2.5 sm:py-3 lg:py-4 px-2 sm:px-3 lg:px-4 border-b border-gray-200 text-xs sm:text-sm print:py-4 print:px-4 print:text-sm ${isFirstColumn
-																		? 'text-gray-900'
-																		: isNumericColumn || column.type === 'CURRENCY'
-																			? 'text-right text-gray-700'
-																			: 'text-center text-gray-700'
-																		} ${columnNameLower === 'total' ? 'font-semibold' : ''}`}
+																	className={`py-2.5 sm:py-3 lg:py-4 px-2 sm:px-3 lg:px-4 border-b border-gray-200 text-xs sm:text-sm print:py-4 print:px-4 print:text-sm ${
+																		isFirstColumn
+																			? 'text-gray-900'
+																			: isNumericColumn ||
+																				  column.type === 'CURRENCY'
+																				? 'text-right text-gray-700'
+																				: 'text-center text-gray-700'
+																	} ${columnNameLower === 'total' ? 'font-semibold' : ''}`}
 																>
 																	{isFirstColumn ? (
 																		<div className="flex items-center gap-1.5 sm:gap-2 print:gap-2">
-																			<span className="font-medium">{index + 1}.</span>
-																			<span className="font-medium">{cellValue}</span>
+																			<span className="font-medium">
+																				{index + 1}.
+																			</span>
+																			<span className="font-medium">
+																				{cellValue}
+																			</span>
 																		</div>
 																	) : (
 																		cellValue
@@ -878,7 +996,11 @@ const InvoicePreview = () => {
 												{(item.description || item.image) && (
 													<tr className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
 														<td
-															colSpan={Math.ceil(invoiceData.columnConfiguration.filter((col) => col.visible).length / 2)}
+															colSpan={Math.ceil(
+																invoiceData.columnConfiguration.filter(
+																	(col) => col.visible,
+																).length / 2,
+															)}
 															className="py-2 sm:py-3 px-2 sm:px-3 lg:px-4 border-b border-gray-200 print:py-3 print:px-4"
 														>
 															<div className="flex gap-2 sm:gap-3 items-start ml-3 sm:ml-5 print:gap-3 print:ml-5">
@@ -894,16 +1016,29 @@ const InvoicePreview = () => {
 																{item.description && (
 																	<div
 																		className="text-xs sm:text-sm text-gray-600 flex-1 prose prose-sm max-w-none print:text-sm"
-																		dangerouslySetInnerHTML={{ __html: item.description }}
+																		dangerouslySetInnerHTML={{
+																			__html: item.description,
+																		}}
 																	/>
 																)}
 															</div>
 														</td>
 														{/* Empty cells for right columns */}
 														{Array.from({
-															length: invoiceData.columnConfiguration.filter((col) => col.visible).length - Math.ceil(invoiceData.columnConfiguration.filter((col) => col.visible).length / 2)
+															length:
+																invoiceData.columnConfiguration.filter(
+																	(col) => col.visible,
+																).length -
+																Math.ceil(
+																	invoiceData.columnConfiguration.filter(
+																		(col) => col.visible,
+																	).length / 2,
+																),
 														}).map((_, idx) => (
-															<td key={idx} className="py-2 sm:py-3 px-2 sm:px-3 lg:px-4 border-b border-gray-200 print:py-3 print:px-4"></td>
+															<td
+																key={idx}
+																className="py-2 sm:py-3 px-2 sm:px-3 lg:px-4 border-b border-gray-200 print:py-3 print:px-4"
+															></td>
 														))}
 													</tr>
 												)}
@@ -919,37 +1054,51 @@ const InvoicePreview = () => {
 					<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 print:grid-cols-2 print:gap-8 print:mb-8 page-break-avoid">
 						{/* Total in Words */}
 						<div>
-							<p className="font-bold text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base print:text-base print:mb-2">{invoiceData.totals.totalInWordsLabel}</p>
-							<p className="text-gray-700 text-xs sm:text-sm print:text-sm">{invoiceData.totals.totalInWordsValue}</p>
+							<p className="font-bold text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base print:text-base print:mb-2">
+								{invoiceData.totals.totalInWordsLabel}
+							</p>
+							<p className="text-gray-700 text-xs sm:text-sm print:text-sm">
+								{invoiceData.totals.totalInWordsValue}
+							</p>
 						</div>
 
 						{/* Totals */}
 						<div className="space-y-2 sm:space-y-3 print:space-y-3">
 							<div className="flex justify-between py-1.5 sm:py-2 text-sm sm:text-base print:py-2 print:text-base">
 								<span className="text-gray-700">Amount</span>
-								<span className="font-semibold text-gray-900">{invoiceData.currency.symbol}{calculateSubtotal().toFixed(2)}</span>
+								<span className="font-semibold text-gray-900">
+									{invoiceData.currency.symbol}
+									{calculateSubtotal().toFixed(2)}
+								</span>
 							</div>
 
 							{/* Show tax based on GST configuration */}
-							{invoiceData.gstConfiguration.taxType === 'GST (India)' && invoiceData.gstConfiguration.gstType === 'IGST' ? (
+							{invoiceData.gstConfiguration.taxType === 'GST (India)' &&
+							invoiceData.gstConfiguration.gstType === 'IGST' ? (
 								// Show IGST only
 								<div className="flex justify-between py-1.5 sm:py-2 text-sm sm:text-base print:py-2 print:text-base">
 									<span className="text-gray-700">IGST</span>
-									<span className="font-semibold text-gray-900">{invoiceData.currency.symbol}{calculateTotalTax().toFixed(2)}</span>
+									<span className="font-semibold text-gray-900">
+										{invoiceData.currency.symbol}
+										{calculateTotalTax().toFixed(2)}
+									</span>
 								</div>
-							) : invoiceData.gstConfiguration.taxType === 'GST (India)' && invoiceData.gstConfiguration.gstType === 'CGST & SGST' ? (
+							) : invoiceData.gstConfiguration.taxType === 'GST (India)' &&
+							  invoiceData.gstConfiguration.gstType === 'CGST & SGST' ? (
 								// Show CGST and SGST separately
 								<>
 									<div className="flex justify-between py-1.5 sm:py-2 text-sm sm:text-base print:py-2 print:text-base">
 										<span className="text-gray-700">CGST</span>
 										<span className="font-semibold text-gray-900">
-											{invoiceData.currency.symbol}{(calculateTotalTax() / 2).toFixed(2)}
+											{invoiceData.currency.symbol}
+											{(calculateTotalTax() / 2).toFixed(2)}
 										</span>
 									</div>
 									<div className="flex justify-between py-1.5 sm:py-2 text-sm sm:text-base print:py-2 print:text-base">
 										<span className="text-gray-700">SGST</span>
 										<span className="font-semibold text-gray-900">
-											{invoiceData.currency.symbol}{(calculateTotalTax() / 2).toFixed(2)}
+											{invoiceData.currency.symbol}
+											{(calculateTotalTax() / 2).toFixed(2)}
 										</span>
 									</div>
 								</>
@@ -957,13 +1106,22 @@ const InvoicePreview = () => {
 								// Show other tax types (VAT, PPN, SST, HST, TAX)
 								<div className="flex justify-between py-1.5 sm:py-2 text-sm sm:text-base print:py-2 print:text-base">
 									<span className="text-gray-700">
-										{invoiceData.gstConfiguration.taxType === 'VAT' ? 'VAT' :
-											invoiceData.gstConfiguration.taxType === 'PPN' ? 'PPN' :
-												invoiceData.gstConfiguration.taxType === 'SST' ? 'SST' :
-													invoiceData.gstConfiguration.taxType === 'HST' ? 'HST' :
-														invoiceData.gstConfiguration.taxType === 'TAX' ? 'TAX' : 'Tax'}
+										{invoiceData.gstConfiguration.taxType === 'VAT'
+											? 'VAT'
+											: invoiceData.gstConfiguration.taxType === 'PPN'
+												? 'PPN'
+												: invoiceData.gstConfiguration.taxType === 'SST'
+													? 'SST'
+													: invoiceData.gstConfiguration.taxType === 'HST'
+														? 'HST'
+														: invoiceData.gstConfiguration.taxType === 'TAX'
+															? 'TAX'
+															: 'Tax'}
 									</span>
-									<span className="font-semibold text-gray-900">{invoiceData.currency.symbol}{calculateTotalTax().toFixed(2)}</span>
+									<span className="font-semibold text-gray-900">
+										{invoiceData.currency.symbol}
+										{calculateTotalTax().toFixed(2)}
+									</span>
 								</div>
 							) : null}
 
@@ -971,25 +1129,33 @@ const InvoicePreview = () => {
 								<div className="flex justify-between py-1.5 sm:py-2 text-sm sm:text-base print:py-2 print:text-base">
 									<span className="text-gray-700">Discounts</span>
 									<span className="font-semibold text-gray-900">
-										({invoiceData.currency.symbol}{calculateDiscount().toFixed(2)})
+										({invoiceData.currency.symbol}
+										{calculateDiscount().toFixed(2)})
 									</span>
 								</div>
 							)}
 
 							{invoiceData.totals.additionalCharges.map((charge) => (
-								<div key={charge.id} className="flex justify-between py-1.5 sm:py-2 text-sm sm:text-base print:py-2 print:text-base">
+								<div
+									key={charge.id}
+									className="flex justify-between py-1.5 sm:py-2 text-sm sm:text-base print:py-2 print:text-base"
+								>
 									<span className="text-gray-700">{charge.name}</span>
 									<span className="font-semibold text-gray-900">
-										{invoiceData.currency.symbol}{parseFloat(String(charge.amount)).toFixed(2)}
+										{invoiceData.currency.symbol}
+										{parseFloat(String(charge.amount)).toFixed(2)}
 									</span>
 								</div>
 							))}
 
 							<div className="border-t-2 border-gray-900 pt-2 sm:pt-3 print:pt-3">
 								<div className="flex justify-between py-1.5 sm:py-2 print:py-2">
-									<span className="text-base sm:text-lg font-bold text-gray-900 print:text-lg">Total ({invoiceData.currency.code})</span>
 									<span className="text-base sm:text-lg font-bold text-gray-900 print:text-lg">
-										{invoiceData.currency.symbol}{calculateFinalTotal().toFixed(2)}
+										Total ({invoiceData.currency.code})
+									</span>
+									<span className="text-base sm:text-lg font-bold text-gray-900 print:text-lg">
+										{invoiceData.currency.symbol}
+										{calculateFinalTotal().toFixed(2)}
 									</span>
 								</div>
 							</div>
@@ -1003,7 +1169,9 @@ const InvoicePreview = () => {
 											alt="Signature"
 											className="max-h-16 sm:max-h-20 mb-1.5 sm:mb-2 mx-auto print:max-h-20 print:mb-2"
 										/>
-										<p className="text-xs sm:text-sm text-gray-600 print:text-sm">Authorized Signature</p>
+										<p className="text-xs sm:text-sm text-gray-600 print:text-sm">
+											Authorized Signature
+										</p>
 									</div>
 								</div>
 							)}
@@ -1013,7 +1181,9 @@ const InvoicePreview = () => {
 					{/* Terms and Conditions */}
 					{invoiceData.terms.length > 0 && (
 						<div className="mb-6 sm:mb-8 print:mb-8 page-break-avoid">
-							<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">Terms and Conditions</h3>
+							<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">
+								Terms and Conditions
+							</h3>
 							<ol className="list-decimal list-inside space-y-1.5 sm:space-y-2 print:space-y-2">
 								{invoiceData.terms.map((term) => (
 									<li key={term.id} className="text-xs sm:text-sm text-gray-700 print:text-sm">
@@ -1027,10 +1197,15 @@ const InvoicePreview = () => {
 					{/* Additional Information */}
 					{invoiceData.additionalInfo.length > 0 && (
 						<div className="mb-3 sm:mb-4 print:mb-4">
-							<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">Additional Information</h3>
+							<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">
+								Additional Information
+							</h3>
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 print:grid-cols-2 print:gap-4">
 								{invoiceData.additionalInfo.map((info) => (
-									<div key={info.id} className="flex gap-2 sm:gap-4 text-xs sm:text-sm print:gap-4 print:text-sm">
+									<div
+										key={info.id}
+										className="flex gap-2 sm:gap-4 text-xs sm:text-sm print:gap-4 print:text-sm"
+									>
 										<span className="text-gray-700">{info.label}</span>
 										<span className="text-gray-900">{info.value}</span>
 									</div>
@@ -1042,7 +1217,9 @@ const InvoicePreview = () => {
 					{/* Notes */}
 					{invoiceData.notes && invoiceData.notes.trim() !== '' && (
 						<div className="mb-3 sm:mb-4 print:mb-4">
-							<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">Notes</h3>
+							<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">
+								Notes
+							</h3>
 							<div
 								className="text-xs sm:text-sm text-gray-700 prose prose-sm max-w-none bg-white p-0 rounded-lg print:text-sm"
 								dangerouslySetInnerHTML={{ __html: invoiceData.notes }}
@@ -1053,7 +1230,9 @@ const InvoicePreview = () => {
 					{/* Attachments */}
 					{invoiceData.attachments.length > 0 && (
 						<div className="mb-6 sm:mb-8 print:mb-8">
-							<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">Attachments</h3>
+							<h3 className="text-base sm:text-lg font-bold text-purple-600 mb-2 sm:mb-3 print:text-lg print:mb-3">
+								Attachments
+							</h3>
 							<ol className="list-decimal list-inside space-y-1.5 sm:space-y-2 print:space-y-2">
 								{invoiceData.attachments.map((attachment) => (
 									<li key={attachment.id} className="text-xs sm:text-sm print:text-sm">

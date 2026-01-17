@@ -97,6 +97,22 @@ export default function BilledBySection({
 				setBusinesses([...businesses, newBusiness]);
 				setSelectedBusiness(businessForm.vendorName);
 			}
+
+			// Save business details to Redux for invoice preview
+			dispatch(updateInvoiceData({
+				businessDetails: {
+					vendorName: businessForm.vendorName,
+					country: businessForm.country,
+					city: businessForm.city,
+					gstin: businessForm.gstin,
+					pan: businessForm.pan,
+					addressCountry: businessForm.addressCountry,
+					state: businessForm.state,
+					addressCity: businessForm.addressCity,
+					postalCode: businessForm.postalCode,
+					streetAddress: businessForm.streetAddress,
+				},
+			}));
 		}
 		setShowBusinessEditModal(false);
 	};
@@ -130,8 +146,8 @@ export default function BilledBySection({
 				<div className="border-b-2 border-dotted border-gray-300 w-20"></div>
 			</div>
 
-			{/* Business Dropdown */}
-			<div className="relative text-sm">
+			{/* Business Dropdown - COMMENTED OUT */}
+			{/* <div className="relative text-sm">
 				<button
 					onClick={() => setShowBusinessDropdown(!showBusinessDropdown)}
 					className="w-full flex items-center gap-3 rounded-lg bg-white sm:p-2 border border-gray-300 hover:border-gray-400 transition-colors"
@@ -175,7 +191,7 @@ export default function BilledBySection({
 						))}
 					</div>
 				)}
-			</div>
+			</div> */}
 
 			{/* Add New Business Button */}
 			<button

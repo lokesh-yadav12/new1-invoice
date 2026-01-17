@@ -210,13 +210,13 @@ export interface InvoiceData {
 const initialState: InvoiceData = {
   title: 'Invoice',
   subtitle: '',
-  invoiceNo: 'A00002',
-  invoiceDate: new Date().toISOString().split('T')[0],
+  invoiceNo: '',
+  invoiceDate: '',
   dueDate: '',
   logo: null,
   customFields: [],
   businessDetails: {
-    vendorName: 'Lokesh',
+    vendorName: 'Your Business Name',
     country: 'India',
     city: '',
     gstin: '',
@@ -229,8 +229,8 @@ const initialState: InvoiceData = {
   },
   selectedClient: '',
   clients: [
-    { id: 1, name: 'Ayush', company: 'Company A' },
-    { id: 2, name: 'Sai', company: 'Company B' },
+    { id: 1, name: 'Client name', company: 'Company A' },
+  
   ],
   items: [
     {
