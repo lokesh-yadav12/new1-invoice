@@ -854,8 +854,8 @@ export default function InvoiceItemsTable() {
   return (
     <>
       <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 pt-0 pb-4 sm:pb-6 md:overflow-visible overflow-x-hidden">
-        <div className="max-w-7xl sm:mx-auto w-[280px] sm:w-full">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 w-[280px] sm:w-full overflow-hidden md:overflow-visible">
+        <div className="max-w-7xl sm:mx-auto w-[300px] sm:w-full">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 w-[300px] sm:w-full overflow-hidden md:overflow-visible">
             {/* Desktop Header */}
             <div className="hidden md:flex bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-4 text-sm font-semibold">
               {visibleColumns.map((column: Column, idx: number) => (
