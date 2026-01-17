@@ -623,160 +623,263 @@ const InvoicePreview = () => {
 					)}
 
 					{/* Items Table */}
-					<div className="mb-6 sm:mb-8 overflow-x-auto -mx-4 sm:mx-0 print:mb-8 print:overflow-visible print:mx-0">
-						<div className="inline-block min-w-full align-middle px-4 sm:px-0 print:px-0">
-							<table className="w-full border-collapse min-w-[640px] print:min-w-0">
-								<thead>
-									<tr className="bg-purple-600 text-white">
-										{invoiceData.columnConfiguration
-											.filter((col) => col.visible)
-											.map((column) => {
-												const isFirstColumn = column.name.toLowerCase() === 'item';
-												const columnNameLower = column.name.toLowerCase();
-												const isNumericColumn =
-													columnNameLower === 'quantity' ||
-													columnNameLower === 'rate' ||
-													columnNameLower === 'amount' ||
-													columnNameLower === 'cgst' ||
-													columnNameLower === 'sgst' ||
-													columnNameLower === 'igst' ||
-													columnNameLower === 'vat' ||
-													columnNameLower === 'ppn' ||
-													columnNameLower === 'sst' ||
-													columnNameLower === 'hst' ||
-													columnNameLower === 'tax' ||
-													columnNameLower === 'total' ||
-													columnNameLower.includes('rate');
+					<div className="mb-6 sm:mb-8 print:mb-8">
+						{/* Mobile Card View */}
+						<div className="block sm:hidden space-y-4">
+							{invoiceData.items.map((item, index) => {
+								// Calculate cell values
+								const getColumnValue = (column: { name: string; type?: string }) => {
+									const columnNameLower = column.name.toLowerCase();
+									let cellValue = '';
 
-												return (
-													<th
-														key={column.id}
-														className={`py-2.5 sm:py-3 lg:py-4 px-2 sm:px-3 lg:px-4 font-semibold text-xs sm:text-sm print:py-4 print:px-4 print:text-sm ${isFirstColumn ? 'text-left' : isNumericColumn ? 'text-right' : 'text-center'
-															}`}
-													>
-														{column.name}
-													</th>
-												);
-											})}
-									</tr>
-								</thead>
-								<tbody>
-									{invoiceData.items.map((item, index) => (
-										<React.Fragment key={item.id}>
-											{/* Main Item Row */}
-											<tr className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-												{invoiceData.columnConfiguration
-													.filter((col) => col.visible)
-													.map((column) => {
-														const columnNameLower = column.name.toLowerCase();
-														const isFirstColumn = columnNameLower === 'item';
-														const isNumericColumn = ['gst rate', 'quantity', 'rate', 'amount', 'cgst', 'sgst', 'total'].includes(columnNameLower);
+									if (columnNameLower === 'item') {
+										cellValue = item.name || 'Unnamed Item';
+									} else if (columnNameLower === 'hsn/sac' || columnNameLower === 'hsn') {
+										cellValue = item.hsn;
+									} else if (columnNameLower.includes('rate') && (
+										columnNameLower.includes('gst') || columnNameLower.includes('vat') ||
+										columnNameLower.includes('ppn') || columnNameLower.includes('sst') ||
+										columnNameLower.includes('hst') || columnNameLower.includes('tax')
+									)) {
+										cellValue = `${item.gstRate}%`;
+									} else if (columnNameLower === 'quantity') {
+										cellValue = String(item.quantity);
+									} else if (columnNameLower === 'rate') {
+										cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.rate) || '0').toFixed(2)}`;
+									} else if (columnNameLower === 'amount') {
+										cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.amount) || '0').toFixed(2)}`;
+									} else if (columnNameLower === 'cgst') {
+										cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.cgst) || '0').toFixed(2)}`;
+									} else if (columnNameLower === 'sgst') {
+										cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.sgst) || '0').toFixed(2)}`;
+									} else if (columnNameLower === 'igst') {
+										const igst = parseFloat(String(item.cgst) || '0') + parseFloat(String(item.sgst) || '0');
+										cellValue = `${invoiceData.currency.symbol}${igst.toFixed(2)}`;
+									} else if (columnNameLower === 'vat' || columnNameLower === 'ppn' ||
+										columnNameLower === 'sst' || columnNameLower === 'hst' || columnNameLower === 'tax') {
+										const totalTax = parseFloat(String(item.cgst) || '0') + parseFloat(String(item.sgst) || '0');
+										cellValue = `${invoiceData.currency.symbol}${totalTax.toFixed(2)}`;
+									} else if (columnNameLower === 'total') {
+										cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.total) || '0').toFixed(2)}`;
+									} else {
+										// Custom column
+										const customValue = item.customFields?.[column.name];
+										if (customValue !== undefined && customValue !== null && customValue !== '') {
+											if (column.type === 'CURRENCY') {
+												cellValue = `${invoiceData.currency.symbol}${parseFloat(String(customValue) || '0').toFixed(2)}`;
+											} else {
+												cellValue = customValue;
+											}
+										} else {
+											cellValue = '-';
+										}
+									}
+									return cellValue;
+								};
 
-														// Get cell value
-														let cellValue = '';
-														if (columnNameLower === 'item') {
-															cellValue = item.name || 'Unnamed Item';
-														} else if (columnNameLower === 'hsn/sac' || columnNameLower === 'hsn') {
-															cellValue = item.hsn;
-														} else if (columnNameLower.includes('rate') && (
-															columnNameLower.includes('gst') || columnNameLower.includes('vat') ||
-															columnNameLower.includes('ppn') || columnNameLower.includes('sst') ||
-															columnNameLower.includes('hst') || columnNameLower.includes('tax')
-														)) {
-															cellValue = `${item.gstRate}%`;
-														} else if (columnNameLower === 'quantity') {
-															cellValue = String(item.quantity);
-														} else if (columnNameLower === 'rate') {
-															cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.rate) || '0').toFixed(2)}`;
-														} else if (columnNameLower === 'amount') {
-															cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.amount) || '0').toFixed(2)}`;
-														} else if (columnNameLower === 'cgst') {
-															cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.cgst) || '0').toFixed(2)}`;
-														} else if (columnNameLower === 'sgst') {
-															cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.sgst) || '0').toFixed(2)}`;
-														} else if (columnNameLower === 'igst') {
-															const igst = parseFloat(String(item.cgst) || '0') + parseFloat(String(item.sgst) || '0');
-															cellValue = `${invoiceData.currency.symbol}${igst.toFixed(2)}`;
-														} else if (columnNameLower === 'vat' || columnNameLower === 'ppn' ||
-															columnNameLower === 'sst' || columnNameLower === 'hst' || columnNameLower === 'tax') {
-															const totalTax = parseFloat(String(item.cgst) || '0') + parseFloat(String(item.sgst) || '0');
-															cellValue = `${invoiceData.currency.symbol}${totalTax.toFixed(2)}`;
-														} else if (columnNameLower === 'total') {
-															cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.total) || '0').toFixed(2)}`;
-														} else {
-															// Custom column
-															const customValue = item.customFields?.[column.name];
-															if (customValue !== undefined && customValue !== null && customValue !== '') {
-																if (column.type === 'CURRENCY') {
-																	cellValue = `${invoiceData.currency.symbol}${parseFloat(String(customValue) || '0').toFixed(2)}`;
-																} else {
-																	cellValue = customValue;
-																}
-															} else {
-																cellValue = '-';
-															}
-														}
+								return (
+									<div key={item.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+										<div className="font-semibold text-purple-600 mb-3 text-sm">Item #{index + 1}</div>
 
-														return (
-															<td
-																key={column.id}
-																className={`py-2.5 sm:py-3 lg:py-4 px-2 sm:px-3 lg:px-4 border-b border-gray-200 text-xs sm:text-sm print:py-4 print:px-4 print:text-sm ${isFirstColumn
-																	? 'text-gray-900'
-																	: isNumericColumn || column.type === 'CURRENCY'
-																		? 'text-right text-gray-700'
-																		: 'text-center text-gray-700'
-																	} ${columnNameLower === 'total' ? 'font-semibold' : ''}`}
-															>
-																{isFirstColumn ? (
-																	<div className="flex items-center gap-1.5 sm:gap-2 print:gap-2">
-																		<span className="font-medium">{index + 1}.</span>
-																		<span className="font-medium">{cellValue}</span>
-																	</div>
-																) : (
-																	cellValue
-																)}
-															</td>
-														);
-													})}
-											</tr>
+										{/* Item Details */}
+										<div className="space-y-2">
+											{invoiceData.columnConfiguration
+												.filter((col) => col.visible)
+												.map((column) => {
+													const value = getColumnValue(column);
+													const columnNameLower = column.name.toLowerCase();
+													const isTotalColumn = columnNameLower === 'total';
 
-											{/* Description and Image Row - Below item name, left side only */}
-											{(item.description || item.image) && (
-												<tr className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-													<td
-														colSpan={Math.ceil(invoiceData.columnConfiguration.filter((col) => col.visible).length / 2)}
-														className="py-2 sm:py-3 px-2 sm:px-3 lg:px-4 border-b border-gray-200 print:py-3 print:px-4"
-													>
-														<div className="flex gap-2 sm:gap-3 items-start ml-3 sm:ml-5 print:gap-3 print:ml-5">
-															{/* Image - small size */}
-															{item.image && (
-																<img
-																	src={item.image}
-																	alt={item.name || 'Item'}
-																	className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded border border-gray-300 flex-shrink-0 print:w-16 print:h-16"
-																/>
-															)}
-															{/* Description - Render HTML */}
-															{item.description && (
-																<div
-																	className="text-xs sm:text-sm text-gray-600 flex-1 prose prose-sm max-w-none print:text-sm"
-																	dangerouslySetInnerHTML={{ __html: item.description }}
-																/>
-															)}
+													return (
+														<div key={column.id} className="flex justify-between items-center py-1 border-b border-gray-100 last:border-0">
+															<span className="text-xs text-gray-600 font-medium">{column.name}:</span>
+															<span className={`text-xs ${isTotalColumn ? 'font-bold text-gray-900' : 'text-gray-800'}`}>
+																{value}
+															</span>
 														</div>
-													</td>
-													{/* Empty cells for right columns */}
-													{Array.from({
-														length: invoiceData.columnConfiguration.filter((col) => col.visible).length - Math.ceil(invoiceData.columnConfiguration.filter((col) => col.visible).length / 2)
-													}).map((_, idx) => (
-														<td key={idx} className="py-2 sm:py-3 px-2 sm:px-3 lg:px-4 border-b border-gray-200 print:py-3 print:px-4"></td>
-													))}
+													);
+												})}
+										</div>
+
+										{/* Description and Image */}
+										{(item.description || item.image) && (
+											<div className="mt-3 pt-3 border-t border-gray-200">
+												{item.image && (
+													<img
+														src={item.image}
+														alt={item.name || 'Item'}
+														className="w-full max-w-[200px] h-auto object-cover rounded border border-gray-300 mb-2"
+													/>
+												)}
+												{item.description && (
+													<div
+														className="text-xs text-gray-600 prose prose-sm max-w-none"
+														dangerouslySetInnerHTML={{ __html: item.description }}
+													/>
+												)}
+											</div>
+										)}
+									</div>
+								);
+							})}
+						</div>
+
+						{/* Desktop Table View */}
+						<div className="hidden sm:block overflow-x-auto -mx-4 sm:mx-0 print:block print:overflow-visible print:mx-0">
+							<div className="inline-block min-w-full align-middle px-4 sm:px-0 print:px-0">
+								<table className="w-full border-collapse min-w-[640px] print:min-w-0">
+									<thead>
+										<tr className="bg-purple-600 text-white">
+											{invoiceData.columnConfiguration
+												.filter((col) => col.visible)
+												.map((column) => {
+													const isFirstColumn = column.name.toLowerCase() === 'item';
+													const columnNameLower = column.name.toLowerCase();
+													const isNumericColumn =
+														columnNameLower === 'quantity' ||
+														columnNameLower === 'rate' ||
+														columnNameLower === 'amount' ||
+														columnNameLower === 'cgst' ||
+														columnNameLower === 'sgst' ||
+														columnNameLower === 'igst' ||
+														columnNameLower === 'vat' ||
+														columnNameLower === 'ppn' ||
+														columnNameLower === 'sst' ||
+														columnNameLower === 'hst' ||
+														columnNameLower === 'tax' ||
+														columnNameLower === 'total' ||
+														columnNameLower.includes('rate');
+
+													return (
+														<th
+															key={column.id}
+															className={`py-2.5 sm:py-3 lg:py-4 px-2 sm:px-3 lg:px-4 font-semibold text-xs sm:text-sm print:py-4 print:px-4 print:text-sm ${isFirstColumn ? 'text-left' : isNumericColumn ? 'text-right' : 'text-center'
+																}`}
+														>
+															{column.name}
+														</th>
+													);
+												})}
+										</tr>
+									</thead>
+									<tbody>
+										{invoiceData.items.map((item, index) => (
+											<React.Fragment key={item.id}>
+												{/* Main Item Row */}
+												<tr className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+													{invoiceData.columnConfiguration
+														.filter((col) => col.visible)
+														.map((column) => {
+															const columnNameLower = column.name.toLowerCase();
+															const isFirstColumn = columnNameLower === 'item';
+															const isNumericColumn = ['gst rate', 'quantity', 'rate', 'amount', 'cgst', 'sgst', 'total'].includes(columnNameLower);
+
+															// Get cell value
+															let cellValue = '';
+															if (columnNameLower === 'item') {
+																cellValue = item.name || 'Unnamed Item';
+															} else if (columnNameLower === 'hsn/sac' || columnNameLower === 'hsn') {
+																cellValue = item.hsn;
+															} else if (columnNameLower.includes('rate') && (
+																columnNameLower.includes('gst') || columnNameLower.includes('vat') ||
+																columnNameLower.includes('ppn') || columnNameLower.includes('sst') ||
+																columnNameLower.includes('hst') || columnNameLower.includes('tax')
+															)) {
+																cellValue = `${item.gstRate}%`;
+															} else if (columnNameLower === 'quantity') {
+																cellValue = String(item.quantity);
+															} else if (columnNameLower === 'rate') {
+																cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.rate) || '0').toFixed(2)}`;
+															} else if (columnNameLower === 'amount') {
+																cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.amount) || '0').toFixed(2)}`;
+															} else if (columnNameLower === 'cgst') {
+																cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.cgst) || '0').toFixed(2)}`;
+															} else if (columnNameLower === 'sgst') {
+																cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.sgst) || '0').toFixed(2)}`;
+															} else if (columnNameLower === 'igst') {
+																const igst = parseFloat(String(item.cgst) || '0') + parseFloat(String(item.sgst) || '0');
+																cellValue = `${invoiceData.currency.symbol}${igst.toFixed(2)}`;
+															} else if (columnNameLower === 'vat' || columnNameLower === 'ppn' ||
+																columnNameLower === 'sst' || columnNameLower === 'hst' || columnNameLower === 'tax') {
+																const totalTax = parseFloat(String(item.cgst) || '0') + parseFloat(String(item.sgst) || '0');
+																cellValue = `${invoiceData.currency.symbol}${totalTax.toFixed(2)}`;
+															} else if (columnNameLower === 'total') {
+																cellValue = `${invoiceData.currency.symbol}${parseFloat(String(item.total) || '0').toFixed(2)}`;
+															} else {
+																// Custom column
+																const customValue = item.customFields?.[column.name];
+																if (customValue !== undefined && customValue !== null && customValue !== '') {
+																	if (column.type === 'CURRENCY') {
+																		cellValue = `${invoiceData.currency.symbol}${parseFloat(String(customValue) || '0').toFixed(2)}`;
+																	} else {
+																		cellValue = customValue;
+																	}
+																} else {
+																	cellValue = '-';
+																}
+															}
+
+															return (
+																<td
+																	key={column.id}
+																	className={`py-2.5 sm:py-3 lg:py-4 px-2 sm:px-3 lg:px-4 border-b border-gray-200 text-xs sm:text-sm print:py-4 print:px-4 print:text-sm ${isFirstColumn
+																		? 'text-gray-900'
+																		: isNumericColumn || column.type === 'CURRENCY'
+																			? 'text-right text-gray-700'
+																			: 'text-center text-gray-700'
+																		} ${columnNameLower === 'total' ? 'font-semibold' : ''}`}
+																>
+																	{isFirstColumn ? (
+																		<div className="flex items-center gap-1.5 sm:gap-2 print:gap-2">
+																			<span className="font-medium">{index + 1}.</span>
+																			<span className="font-medium">{cellValue}</span>
+																		</div>
+																	) : (
+																		cellValue
+																	)}
+																</td>
+															);
+														})}
 												</tr>
-											)}
-										</React.Fragment>
-									))}
-								</tbody>
-							</table>
+
+												{/* Description and Image Row - Below item name, left side only */}
+												{(item.description || item.image) && (
+													<tr className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+														<td
+															colSpan={Math.ceil(invoiceData.columnConfiguration.filter((col) => col.visible).length / 2)}
+															className="py-2 sm:py-3 px-2 sm:px-3 lg:px-4 border-b border-gray-200 print:py-3 print:px-4"
+														>
+															<div className="flex gap-2 sm:gap-3 items-start ml-3 sm:ml-5 print:gap-3 print:ml-5">
+																{/* Image - small size */}
+																{item.image && (
+																	<img
+																		src={item.image}
+																		alt={item.name || 'Item'}
+																		className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded border border-gray-300 flex-shrink-0 print:w-16 print:h-16"
+																	/>
+																)}
+																{/* Description - Render HTML */}
+																{item.description && (
+																	<div
+																		className="text-xs sm:text-sm text-gray-600 flex-1 prose prose-sm max-w-none print:text-sm"
+																		dangerouslySetInnerHTML={{ __html: item.description }}
+																	/>
+																)}
+															</div>
+														</td>
+														{/* Empty cells for right columns */}
+														{Array.from({
+															length: invoiceData.columnConfiguration.filter((col) => col.visible).length - Math.ceil(invoiceData.columnConfiguration.filter((col) => col.visible).length / 2)
+														}).map((_, idx) => (
+															<td key={idx} className="py-2 sm:py-3 px-2 sm:px-3 lg:px-4 border-b border-gray-200 print:py-3 print:px-4"></td>
+														))}
+													</tr>
+												)}
+											</React.Fragment>
+										))}
+									</tbody>
+								</table>
+							</div>
 						</div>
 					</div>
 
