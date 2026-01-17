@@ -171,12 +171,12 @@ const HorizontalScrollWorkflow = () => {
 	];
 
 	useEffect(() => {
-		// Check if user is logged in (check localStorage)
-		const checkAuth = () => {
-			const token = localStorage.getItem('authToken');
-			setIsLoggedIn(!!token);
-		};
-		checkAuth();
+		// Comment out auth check - no login required
+		// const checkAuth = () => {
+		// 	const token = localStorage.getItem('authToken');
+		// 	setIsLoggedIn(!!token);
+		// };
+		// checkAuth();
 
 		const handleScroll = () => {
 			if (!sectionRef.current) return;
@@ -230,41 +230,51 @@ const HorizontalScrollWorkflow = () => {
 	const translateX = -(scrollProgress * maxTranslate);
 
 	const handleNavigation = (route: string) => {
-		// Check if user is logged in
-		if (!isLoggedIn) {
-			setPendingRoute(route);
-			setShowLoginModal(true);
-		} else {
-			window.location.href = route;
-		}
+		// Navigate directly to the route
+		window.location.href = route;
+
+		// Comment out login check - open form instead
+		// if (!isLoggedIn) {
+		// 	setPendingRoute(route);
+		// 	setShowLoginModal(true);
+		// } else {
+		// 	window.location.href = route;
+		// }
+	};
+
+	const handleOpenForm = () => {
+		// TODO: Open signup/registration form here
+		console.log('Opening form...');
+		setShowLoginModal(true);
 	};
 
 	const handleLogin = () => {
+		// Comment out login logic - form submission will be handled separately
 		// Validate inputs
-		if (!email || !password) {
-			alert('Please enter both email and password');
-			return;
-		}
-		
+		// if (!email || !password) {
+		// 	alert('Please enter both email and password');
+		// 	return;
+		// }
+
 		// Here you would typically make an API call to verify credentials
 		// For demo purposes, we'll just simulate a successful login
-		
-		console.log('Login attempt:', { email, password });
-		
-		// Store auth token (in real app, this would come from your backend)
-		localStorage.setItem('authToken', 'demo-token-12345');
-		
-		// Update login state
-		setIsLoggedIn(true);
-		
+
+		console.log('Form submission:', { email, password });
+
+		// Comment out auth token storage
+		// localStorage.setItem('authToken', 'demo-token-12345');
+
+		// Comment out login state update
+		// setIsLoggedIn(true);
+
 		// Close modal
 		setShowLoginModal(false);
-		
-		// Navigate to pending route
-		if (pendingRoute) {
-			window.location.href = pendingRoute;
-		}
-		
+
+		// Comment out navigation
+		// if (pendingRoute) {
+		// 	window.location.href = pendingRoute;
+		// }
+
 		// Reset form
 		setEmail('');
 		setPassword('');
@@ -321,9 +331,8 @@ const HorizontalScrollWorkflow = () => {
 									}}
 								>
 									<div
-										className={`relative h-[400px] sm:h-[400px] md:h-[440px] lg:h-[440px] rounded-xl md:rounded-2xl overflow-hidden border border-gray-200 hover:border-gray-300 transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl ${
-											tool.featured ? 'ring-2 ring-purple-300' : ''
-										}`}
+										className={`relative h-[400px] sm:h-[400px] md:h-[440px] lg:h-[440px] rounded-xl md:rounded-2xl overflow-hidden border border-gray-200 hover:border-gray-300 transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl ${tool.featured ? 'ring-2 ring-purple-300' : ''
+											}`}
 									>
 										{/* Content */}
 										<div className="relative h-full p-10 sm:p-6 md:p-7 lg:p-4 flex flex-col items-center text-center z-10">
@@ -371,8 +380,8 @@ const HorizontalScrollWorkflow = () => {
 
 						{/* Header */}
 						<div className="text-center mb-6">
-							<h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
-							<p className="text-gray-600 text-sm sm:text-base">Please login to continue</p>
+							<h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Get Started</h2>
+							<p className="text-gray-600 text-sm sm:text-base">Fill in your details to continue</p>
 						</div>
 
 						{/* Login Form */}
@@ -411,16 +420,19 @@ const HorizontalScrollWorkflow = () => {
 									<input type="checkbox" className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
 									<span className="ml-2 text-gray-600">Remember me</span>
 								</label>
-								<a href="#" className="text-purple-600 hover:text-purple-700 font-medium">
+								<button
+									onClick={handleOpenForm}
+									className="text-purple-600 hover:text-purple-700 font-medium"
+								>
 									Forgot Password?
-								</a>
+								</button>
 							</div>
 
 							<button
 								onClick={handleLogin}
 								className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
 							>
-								Login
+								Submit
 							</button>
 						</div>
 
@@ -437,9 +449,12 @@ const HorizontalScrollWorkflow = () => {
 						{/* Sign Up Link */}
 						<p className="text-center text-sm text-gray-600">
 							Don't have an account?{' '}
-							<a href="#" className="text-purple-600 hover:text-purple-700 font-semibold">
+							<button
+								onClick={handleOpenForm}
+								className="text-purple-600 hover:text-purple-700 font-semibold"
+							>
 								Sign up now
-							</a>
+							</button>
 						</p>
 					</div>
 				</div>
