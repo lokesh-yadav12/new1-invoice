@@ -293,7 +293,7 @@ export default function InvoiceItemsTable() {
 
     if (e.key === 'Enter') {
       const range = selection.getRangeAt(0);
-      let node = range.startContainer;
+      const node = range.startContainer;
       let listItem: Node | null = node.nodeType === 3 ? node.parentElement : node;
 
       while (listItem && listItem !== editor && (listItem as HTMLElement).tagName !== 'LI') {
@@ -423,22 +423,24 @@ export default function InvoiceItemsTable() {
 
   const renderItem = (item: InvoiceItem, index: number) => {
     return (
-      <div key={item.id} className="border-b border-gray-200 last:border-b-0">
+      <div key={item.id} className="border-b border-gray-200 last:border-b-0 md:overflow-visible overflow-hidden w-[280px] md:w-auto">
         {/* Mobile View - Vertical Card Layout */}
-        <div className="md:hidden p-3 sm:p-4">
-          <div className="flex items-start justify-between mb-3">
-            <span className="text-sm font-semibold text-gray-900">#{index + 1}</span>
+        <div className="block md:hidden p-4 bg-white w-full overflow-hidden max-w-full">
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
+            <span className="text-sm font-bold text-purple-600">Item #{index + 1}</span>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => duplicateItem(item.id)}
-                className="text-gray-400 hover:text-gray-600 p-1"
+                className="text-gray-400 hover:text-purple-600 p-1.5 rounded-lg hover:bg-purple-50 transition-all"
+                title="Duplicate"
               >
                 <Copy size={16} />
               </button>
               <button
                 onClick={() => deleteItem(item.id)}
-                className="text-gray-400 hover:text-red-500 p-1"
+                className="text-gray-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50 transition-all"
                 disabled={items.length === 1}
+                title="Delete"
               >
                 <X size={16} />
               </button>
@@ -446,11 +448,13 @@ export default function InvoiceItemsTable() {
           </div>
 
           {/* Vertical Fields */}
-          <div className="space-y-3">
+          <div className="space-y-3 overflow-x-hidden w-full">
             {visibleColumns.map((column: Column) => {
               const fieldName = getFieldName(column);
               const isEditable = isColumnEditable(column);
               const value = getCellValue(item, column);
+              const columnNameLower = column.name.toLowerCase();
+              const isTotalColumn = columnNameLower === 'total';
 
               if (isEditable && fieldName) {
                 const inputType = column.type === 'NUMBER' || column.type === 'CURRENCY' ? 'number' : 'text';
@@ -463,24 +467,26 @@ export default function InvoiceItemsTable() {
                 }
 
                 return (
-                  <div key={column.id} className="flex flex-col">
-                    <label className="text-xs font-medium text-gray-600 mb-1">
+                  <div key={column.id} className="flex flex-col gap-1.5 w-full">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide truncate">
                       {column.name}
                     </label>
                     <input
                       type={inputType}
                       value={inputValue}
                       onChange={(e) => updateItem(item.id, fieldName, e.target.value)}
-                      placeholder={column.name}
-                      className="w-full px-3 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      placeholder={`Enter ${column.name.toLowerCase()}`}
+                      className="w-full px-3 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:bg-white transition-all"
                     />
                   </div>
                 );
               } else {
                 return (
-                  <div key={column.id} className="flex justify-between items-center py-1">
-                    <span className="text-xs font-medium text-gray-600">{column.name}:</span>
-                    <span className="text-sm font-semibold text-gray-900">{value}</span>
+                  <div key={column.id} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0 gap-2 w-full">
+                    <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide flex-shrink-0">{column.name}</span>
+                    <span className={`text-sm font-semibold ${isTotalColumn ? 'text-purple-600' : 'text-gray-900'} break-words text-right`}>
+                      {value || '-'}
+                    </span>
                   </div>
                 );
               }
@@ -489,9 +495,9 @@ export default function InvoiceItemsTable() {
 
           {/* Description Editor */}
           {item.showDescription && (
-            <div className="mt-4">
-              <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
-                <div className="bg-gray-50 border-b border-gray-300 px-2 py-2 flex items-center gap-1 overflow-x-auto">
+            <div className="mt-4 pt-4 border-t border-gray-200 overflow-x-hidden">
+              <div className="border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm w-full">
+                <div className="bg-gray-50 border-b border-gray-300 px-2 py-2 flex items-center gap-1 overflow-x-auto scrollbar-thin">
                   <button
                     onClick={() => applyFormat(item.id, 'bold')}
                     className="p-1.5 hover:bg-gray-200 rounded transition-colors flex-shrink-0"
@@ -574,8 +580,8 @@ export default function InvoiceItemsTable() {
                   onKeyDown={(e) => handleEditorKeyDown(item.id, e)}
                   onPaste={handleEditorPaste}
                   dangerouslySetInnerHTML={{ __html: item.description || '' }}
-                  className="w-full px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-purple-200 min-h-[100px] max-h-[250px] overflow-y-auto"
-                  style={{ wordBreak: 'break-word', direction: 'ltr', textAlign: 'left' }}
+                  className="w-full px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-purple-200 min-h-[100px] max-h-[250px] overflow-y-auto break-words"
+                  style={{ wordBreak: 'break-word', direction: 'ltr', textAlign: 'left', overflowWrap: 'break-word' }}
                   suppressContentEditableWarning
                 />
               </div>
@@ -583,19 +589,19 @@ export default function InvoiceItemsTable() {
           )}
 
           {item.showImage && (
-            <div className="mt-3">
+            <div className="mt-4 pt-4 border-t border-gray-200 overflow-x-hidden">
               {item.image ? (
-                <div className="relative inline-block">
-                  <img src={item.image} alt="Item" className="h-24 rounded-lg border border-gray-300" />
+                <div className="relative inline-block max-w-full">
+                  <img src={item.image} alt="Item" className="h-32 w-auto max-w-full rounded-lg border border-gray-300 shadow-sm" />
                   <button
                     onClick={() => updateItem(item.id, 'image', null)}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 shadow-md transition-all"
                   >
-                    <X size={12} />
+                    <X size={14} />
                   </button>
                 </div>
               ) : (
-                <div>
+                <div className="w-full">
                   <input
                     type="file"
                     id={`image-${item.id}`}
@@ -605,29 +611,29 @@ export default function InvoiceItemsTable() {
                   />
                   <label
                     htmlFor={`image-${item.id}`}
-                    className="inline-flex items-center gap-2 px-3 py-2 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-purple-400 transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-purple-400 hover:bg-purple-50 transition-all max-w-full"
                   >
-                    <Image size={16} className="text-gray-400" />
-                    <span className="text-xs text-gray-600">Click to upload image</span>
+                    <Image size={18} className="text-gray-400 flex-shrink-0" />
+                    <span className="text-sm text-gray-600 font-medium truncate">Click to upload image</span>
                   </label>
                 </div>
               )}
             </div>
           )}
 
-          <div className="flex flex-wrap items-center gap-3 mt-4">
+          <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t border-gray-200 overflow-x-hidden">
             <button
               onClick={() => toggleDescription(item.id)}
-              className="flex items-center gap-1.5 text-purple-600 hover:text-purple-700 text-xs"
+              className="flex items-center gap-1.5 px-3 py-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg text-xs font-medium transition-all whitespace-nowrap"
             >
-              <Plus size={14} />
+              <Plus size={14} className="flex-shrink-0" />
               <span>{item.showDescription ? 'Hide Description' : 'Add Description'}</span>
             </button>
             <button
               onClick={() => toggleImage(item.id)}
-              className="flex items-center gap-1.5 text-purple-600 hover:text-purple-700 text-xs"
+              className="flex items-center gap-1.5 px-3 py-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg text-xs font-medium transition-all whitespace-nowrap"
             >
-              <Image size={14} />
+              <Image size={14} className="flex-shrink-0" />
               <span>{item.showImage ? 'Hide Image' : 'Add Image'}</span>
             </button>
           </div>
@@ -846,135 +852,137 @@ export default function InvoiceItemsTable() {
   const ungroupedItems = items.filter((item: InvoiceItem) => !item.groupId);
 
   return (
-    <div className="px-2 sm:px-4 md:px-6 lg:px-8 pt-0 pb-4 sm:pb-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
-          {/* Desktop Header */}
-          <div className="hidden md:flex bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-4 text-sm font-semibold">
-            {visibleColumns.map((column: Column, idx: number) => (
-              <div
-                key={column.id}
-                className={`flex-1 ${idx === 0 ? 'flex-[2]' : ''} px-2`}
-                style={{ minWidth: '70px' }}
-              >
-                {column.name}
+    <>
+      <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 pt-0 pb-4 sm:pb-6 md:overflow-visible overflow-x-hidden">
+        <div className="max-w-7xl sm:mx-auto w-[280px] sm:w-full">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 w-[280px] sm:w-full overflow-hidden md:overflow-visible">
+            {/* Desktop Header */}
+            <div className="hidden md:flex bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-4 text-sm font-semibold">
+              {visibleColumns.map((column: Column, idx: number) => (
+                <div
+                  key={column.id}
+                  className={`flex-1 ${idx === 0 ? 'flex-[2]' : ''} px-2`}
+                  style={{ minWidth: '70px' }}
+                >
+                  {column.name}
+                </div>
+              ))}
+              <div className="w-24"></div>
+            </div>
+
+            {/* Mobile Header */}
+            <div className=" w-[280px] mx-auto md:hidden bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-3 text-sm font-semibold">
+              <div className="text-center">Invoice Items</div>
+            </div>
+
+            <div className="divide-y divide-gray-200 md:overflow-visible overflow-x-hidden">
+              {ungroupedItems.map((item: InvoiceItem, index: number) => renderItem(item, index))}
+            </div>
+
+            {groups.map((group: Group) => (
+              <div key={group.id} className="border-t-2 border-gray-300">
+                <div className="bg-purple-50 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <button onClick={() => toggleGroup(group.id)} className="text-purple-600 hover:text-purple-700">
+                      {group.isCollapsed ? <ChevronDown size={18} className="sm:w-5 sm:h-5" /> : <ChevronUp size={18} className="sm:w-5 sm:h-5" />}
+                    </button>
+                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{group.name}</h3>
+                  </div>
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <button
+                      onClick={() => addNewItem(group.id)}
+                      className="text-purple-600 hover:text-purple-700 text-xs sm:text-sm font-medium transition-colors"
+                    >
+                      + Add Item
+                    </button>
+                    <button
+                      onClick={() => deleteGroup(group.id)}
+                      className="text-red-500 hover:text-red-600 transition-colors"
+                    >
+                      <X size={16} className="sm:w-[18px] sm:h-[18px]" />
+                    </button>
+                  </div>
+                </div>
+
+                {!group.isCollapsed && (
+                  <div className="divide-y divide-gray-200 md:overflow-visible overflow-x-hidden">
+                    {items.filter((item: InvoiceItem) => item.groupId === group.id).map((item: InvoiceItem, index: number) => renderItem(item, index))}
+                  </div>
+                )}
               </div>
             ))}
-            <div className="w-24"></div>
-          </div>
 
-          {/* Mobile Header */}
-          <div className="md:hidden bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-3 text-sm font-semibold">
-            <div className="text-center">Invoice Items</div>
-          </div>
-
-          <div className="divide-y divide-gray-200">
-            {ungroupedItems.map((item: InvoiceItem, index: number) => renderItem(item, index))}
-          </div>
-
-          {groups.map((group: Group) => (
-            <div key={group.id} className="border-t-2 border-gray-300">
-              <div className="bg-purple-50 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <button onClick={() => toggleGroup(group.id)} className="text-purple-600 hover:text-purple-700">
-                    {group.isCollapsed ? <ChevronDown size={18} className="sm:w-5 sm:h-5" /> : <ChevronUp size={18} className="sm:w-5 sm:h-5" />}
-                  </button>
-                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{group.name}</h3>
-                </div>
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <button
-                    onClick={() => addNewItem(group.id)}
-                    className="text-purple-600 hover:text-purple-700 text-xs sm:text-sm font-medium transition-colors"
-                  >
-                    + Add Item
-                  </button>
-                  <button
-                    onClick={() => deleteGroup(group.id)}
-                    className="text-red-500 hover:text-red-600 transition-colors"
-                  >
-                    <X size={16} className="sm:w-[18px] sm:h-[18px]" />
-                  </button>
-                </div>
-              </div>
-
-              {!group.isCollapsed && (
-                <div className="divide-y divide-gray-200">
-                  {items.filter((item: InvoiceItem) => item.groupId === group.id).map((item: InvoiceItem, index: number) => renderItem(item, index))}
-                </div>
-              )}
-            </div>
-          ))}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 p-3 sm:p-4 border-t-2 border-dashed border-gray-300 bg-gray-50">
-            <button
-              onClick={() => addNewItem()}
-              className="flex items-center justify-center gap-2 py-2.5 sm:py-3 border-2 border-dashed border-purple-300 rounded-lg text-purple-600 hover:border-purple-500 hover:bg-purple-50 transition-all duration-200 font-medium text-sm"
-            >
-              <Plus size={18} className="sm:w-5 sm:h-5" />
-              <span>Add New Line</span>
-            </button>
-
-            <button
-              onClick={() => setShowGroupModal(true)}
-              className="flex items-center justify-center gap-2 py-2.5 sm:py-3 border-2 border-dashed border-purple-300 rounded-lg text-purple-600 hover:border-purple-500 hover:bg-purple-50 transition-all duration-200 font-medium text-sm"
-            >
-              <Plus size={18} className="sm:w-5 sm:h-5" />
-              <span>Add New Group</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {showGroupModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
-            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Add New Group</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 p-3 sm:p-4 border-t-2 border-dashed border-gray-300 bg-gray-50">
               <button
-                onClick={() => {
-                  setShowGroupModal(false);
-                  setGroupName('');
-                }}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                onClick={() => addNewItem()}
+                className="flex items-center justify-center gap-2 py-2.5 sm:py-3 border-2 border-dashed border-purple-300 rounded-lg text-purple-600 hover:border-purple-500 hover:bg-purple-50 transition-all duration-200 font-medium text-sm"
               >
-                <X size={20} className="sm:w-6 sm:h-6" />
+                <Plus size={18} className="sm:w-5 sm:h-5" />
+                <span>Add New Line</span>
+              </button>
+
+              <button
+                onClick={() => setShowGroupModal(true)}
+                className="flex items-center justify-center gap-2 py-2.5 sm:py-3 border-2 border-dashed border-purple-300 rounded-lg text-purple-600 hover:border-purple-500 hover:bg-purple-50 transition-all duration-200 font-medium text-sm"
+              >
+                <Plus size={18} className="sm:w-5 sm:h-5" />
+                <span>Add New Group</span>
               </button>
             </div>
+          </div>
+        </div>
 
-            <div className="p-4 sm:p-6">
-              <div className="mb-4 sm:mb-6">
-                <label className="block text-gray-900 font-medium mb-2 text-sm sm:text-base">Group Name</label>
-                <input
-                  type="text"
-                  placeholder="Enter group name"
-                  value={groupName}
-                  onChange={(e) => setGroupName(e.target.value)}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all"
-                  autoFocus
-                />
-              </div>
-
-              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
+        {showGroupModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+              <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Add New Group</h2>
                 <button
                   onClick={() => {
                     setShowGroupModal(false);
                     setGroupName('');
                   }}
-                  className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  Cancel
+                  <X size={20} className="sm:w-6 sm:h-6" />
                 </button>
-                <button
-                  onClick={addNewGroup}
-                  className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
-                >
-                  Create Group
-                </button>
+              </div>
+
+              <div className="p-4 sm:p-6">
+                <div className="mb-4 sm:mb-6">
+                  <label className="block text-gray-900 font-medium mb-2 text-sm sm:text-base">Group Name</label>
+                  <input
+                    type="text"
+                    placeholder="Enter group name"
+                    value={groupName}
+                    onChange={(e) => setGroupName(e.target.value)}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all"
+                    autoFocus
+                  />
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
+                  <button
+                    onClick={() => {
+                      setShowGroupModal(false);
+                      setGroupName('');
+                    }}
+                    className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={addNewGroup}
+                    className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
+                  >
+                    Create Group
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
